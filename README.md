@@ -7,7 +7,7 @@ This directory contains a pipeline for predicting very large protein complexes u
 AlphaFold2 is available under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0) and so is FoldDock, which is a derivative thereof.  \
 The AlphaFold2 parameters are made available under the terms of the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/legalcode) and have not been modified.
 \
-**MoLPC** can be run using predictions of subcomponents from any method and is thus not directly dependent on AlphaFold2 - e.g. [AlphaFold-multimer](https://www.biorxiv.org/content/10.1101/2021.10.04.463034v2) can also be used. \
+**MoLPC** can be run using predictions of subcomponents from any method and is thus not directly dependent on AlphaFold2 - e.g. [AlphaFold-multimer](https://www.biorxiv.org/content/10.1101/2021.10.04.463034v2) can also be used. Note that this results in approximately twice the run time. \
 MolPC is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 \
 \
