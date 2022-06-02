@@ -22,7 +22,6 @@ with 10-30 chains, but is also functional for smaller protein complexes. \
 Please see the preprint [Predicting the structure of large protein complexes using AlphaFold and sequential assembly](https://www.biorxiv.org/content/10.1101/2022.03.12.484089v1) for more information.
 
 ### [1IWA](https://www.rcsb.org/structure/1IWA) | TM-score=0.93 | Hetero-oligomer with 16 chains
-Native complex in grey, prediction colored by chain
 <img src="./1IWA.gif" width="50%" height="50%"/>
 
 # The following sections contains information of how to install and run MoLPC locally.
