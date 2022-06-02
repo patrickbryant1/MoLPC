@@ -42,7 +42,7 @@ git clone git@github.com:patrickbryant1/MoLPC.git
 \
 To install Singularity3 on a Linux system, do
 ```
-bash src/install_singularity_ubuntu.sh
+bash ./src/install_singularity_ubuntu.sh
 ```
 Then do
 ```
@@ -73,6 +73,9 @@ To try this, simply do
 ```
 bash pipeline.sh
 ```
+\
+The putput will be generated in **./data/test/**
+\
 \
 The pipeline consists of four steps:
 ## 1. MSA generation
