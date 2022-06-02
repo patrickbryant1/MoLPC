@@ -21,6 +21,10 @@ with 10-30 chains, but is also functional for smaller protein complexes. \
 \
 Please see the preprint [Predicting the structure of large protein complexes using AlphaFold and sequential assembly](https://www.biorxiv.org/content/10.1101/2022.03.12.484089v1) for more information.
 
+### [1IWA](https://www.rcsb.org/structure/1IWA) | TM-score=0.93 | Hetero-oligomer with 16 chains
+Native complex in grey, prediction colored by chain
+<img src="./1IWA.gif" width="50%" height="50%"/>
+
 # The following sections contains information of how to install and run MoLPC locally.
 
 # Computational requirements
@@ -93,7 +97,6 @@ Output: The predicted structure of each trimeric complex subcomponent
 From the interactions in the predicted subcomponents, we add chains sequentially following a predetermined path through the interaction network (graph). If two pairwise interactions are A-B and B-C, we assemble the complex A-B-C by superposing chain B from A-B and B-C using [BioPython’s SVD](https://biopython.org/docs/1.76/api/Bio.SVDSuperimposer.html) and rotating the missing chain to its correct relative position.
 
 To find the optimal assembly route for a complex, we search for an optimal path using [Monte Carlo Tree Search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search)
-<p style="text-align:center;"><img src="./MCTS.svg" >
 
 ## 4. Scoring - multiple interface predicted DockQ (mpDockQ)
 After assembly, we score the interfaces of the complete complex using the average interface plDDT⋅log(number of interface contacts). These metrics are calculated for the entire interface of each chain, as in the [DockQ score](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0161879) for multiple interfaces. E.g. if chain A interacts with both chains B and C, the interface plDDT⋅log(number of interface contacts) is taken over both of these interfaces simultaneously. This is done for all interfaces and chains and averaged over the entire complex. The complexes with the highest scores are favored. A CSV file named "ID"_score.csv will be found in the output directory together with a pdb file of the complex. The scores in the CSV file can be used to calculate the mpDockQ accordingly:
