@@ -6,7 +6,7 @@ DATADIR=$BASE/data/test/
 HHBLITS=$BASE/hhblits #Path to hhblits version 3.1.0
 HHBLITSDB=$BASE/data/uniclust30_2018_08/uniclust30_2018_08
 ###Note!
-#This runscript assumes that you have sinfularity in your path
+#This runscript assumes that you have singularity in your path
 
 #Run the assembly pipeline starting from predicted interactions
 #########INPUTS and PATHS##########
@@ -30,14 +30,15 @@ singularity exec $SINGIMG python3 $BASE/src/preprocess/write_hhblits_fasta.py --
 #Run HHblits
 for file in $MSADIR/*.fasta
 do
-  SUBID=$(echo $file|cut -d '/' -f 6|cut -d '.' -f 1)
+  SUBID=$(awk -F'/' '{print $NF}' <<< "echo $file")
+  SUBID=$(echo $SUBID|cut -d '.' -f 1)
   singularity exec $SINGIMG hhblits -i $file -d $HHBLITSDB -E 0.001 -all -n 2 -oa3m $MSADIR/$SUBID'.a3m'
 done
 
 #########Step2: FOLDING PIPELINE#########
 wait
 #Write the Paired and Block Diagonalized MSAs to predict sub-components
-singularity exec $SINGIMG python3 $BASE/src/preprocess/all_pdb_over9/prepare_folddock_run.py --msadir $MSADIR/ \
+singularity exec $SINGIMG python3 $BASE/src/preprocess/prepare_folddock_run.py --msadir $MSADIR/ \
 --complex_id $ID \
 --outdir $MSADIR/ \
 --useqs $USEQS \
