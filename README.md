@@ -34,11 +34,16 @@ on your system, readily available.
 All needed packages are supplied through a Singularity image.
 The only requirement for running MoLPC is therefore singularity, which can be installed by following: https://sylabs.io/guides/3.0/user-guide/quick_start.html
 \
+We also provide a script that installs Singularity3 on Linux systems (if your system is not Linux based, RIP).
 To setup this pipeline, clone this github repository:
 ```
 git clone git@github.com:patrickbryant1/MoLPC.git
 ```
 \
+To install Singularity3 on a Linux system, do
+```
+bash src/install_singularity_ubuntu.sh
+```
 Then do
 ```
 bash setup.sh

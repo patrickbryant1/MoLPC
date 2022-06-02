@@ -12,12 +12,11 @@ HHBLITSDB=$BASE/data/uniclust30_2018_08/uniclust30_2018_08
 #########INPUTS and PATHS##########
 USEQS=$DATADIR/$ID'_useqs.csv'
 CHAINS=$DATADIR/$ID'_chains.csv'
-INTERACTIONS='' #Leave empty if the interactions are not known
+INTERACTIONS='' #Leave empty if the interactions are not known - here they are not used. See the file $DATADIR/$ID'_ints.csv' to how to supply such a file
 SUBSIZE=3 #What order the subcomplexes should be (2 or 3)
 GET_ALL=1 #If to get all interactions (1) or not (0) - when the interactions are known
-MAX_PATHS=10000 #Maximum subpaths to use in the assembly. Recommended >=10000.
 #########OUTPUTS#########
-#Ranked complexes: complex_scores.csv and their pdb files
+#The best assembled complex ,the assembly path and its score (mpDockQ)
 
 #########Step1: MSA PIPELINE#########
 SINGIMG=$BASE/src/AF2/AF_environment.sif #Sing img
@@ -25,7 +24,7 @@ HHBLITSDB=$BASE/data/uniclust30_2018_08/uniclust30_2018_08
 MSADIR=$DATADIR/hhblits
 mkdir $MSADIR
 #Write individual fasta files for all unique sequences
-singularity exec $SINGIMG python3 $BASE/src/preprocess/all_pdb_over9/write_hhblits_fasta.py --unique_seq_df $USEQS \
+singularity exec $SINGIMG python3 $BASE/src/preprocess/write_hhblits_fasta.py --unique_seq_df $USEQS \
 --outdir $MSADIR/
 
 #Run HHblits
@@ -129,8 +128,6 @@ mkdir $PAIRDIR
 #Glob for all files with each chain in order (A,B,C,D) A-->B,C,D; B--> C,D; C-->D
 singularity exec $SINGIMG python3 $CODEDIR/write_all_pairs.py --pdbdir $PDBDIR --pairdir $PAIRDIR --meta $META \
 --interactions $INTERACTIONS --get_all $GET_ALL
-
-
 
 #Assemble from pairs
 #Find the best non-overlapping path that connect all nodes using Monte Carlo Tree search
