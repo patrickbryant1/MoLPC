@@ -5,9 +5,6 @@ import numpy as np
 import pandas as pd
 from collections import Counter, defaultdict
 import glob
-import subprocess
-from scipy.spatial import distance
-from circuit import hamilton, all_paths
 import pdb
 
 parser = argparse.ArgumentParser(description = '''Write all interacting pairs.''')
