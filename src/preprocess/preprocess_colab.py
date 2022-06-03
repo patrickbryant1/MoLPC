@@ -7,6 +7,16 @@ import shutil
 import glob
 
 #########Functions###########
+def write_fasta(df, outdir):
+    '''Assign chain ids for each sequence in each complex
+    '''
+
+    for ind,row in df.iterrows():
+        #Write fasta for MSA creation
+        with open(outdir+row['Entry ID']+'_'+str(row.SeqID)+'.fasta', 'w') as file:
+            file.write('>'+row['Entry ID']+'_'+str(row.SeqID)+'\n')
+            file.write(row.Sequence+'\n')
+
 def read_a3m(infile,max_gap_fraction=0.9):
     '''Read a3m MSA'''
     mapping = {'-': 21, 'A': 1, 'B': 21, 'C': 2, 'D': 3, 'E': 4, 'F': 5,
@@ -86,7 +96,7 @@ def write_a3m(fused, outfile):
             file.write(''.join([backmap[ch] for ch in fused[i]])+'\n')
 
     return None
-    
+
 def get_sub_combos(uints, subsize):
     '''Get all possible combinations of size subsize
     according to the uints
