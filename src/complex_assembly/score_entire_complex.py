@@ -4,7 +4,6 @@ import os
 import numpy as np
 import pandas as pd
 import glob
-from sklearn import metrics
 from collections import defaultdict
 from scipy.spatial import distance
 import pdb
@@ -76,7 +75,7 @@ def read_pdb(pdbfile):
 def read_plddt(plddtdir, chain_lens, model_path):
     '''Get the plDDT for each chain
     '''
-    
+
     plddt_per_chain = {}
     for ind, row in model_path.iterrows():
         source_plDDT =  np.load(plddtdir+row.Source+'.npy')
@@ -106,7 +105,7 @@ def read_plddt(plddtdir, chain_lens, model_path):
 def score_complex(path_coords, path_CB_inds, path_plddt):
     '''Score all interfaces in the current complex
     '''
-    metrics = {'Chain':[], 'n_ints':[], 'sum_av_IF_plDDT':[], 
+    metrics = {'Chain':[], 'n_ints':[], 'sum_av_IF_plDDT':[],
                 'n_contacts':[], 'n_IF_residues':[]}
 
     chains = [*path_coords.keys()]
@@ -154,6 +153,26 @@ def score_complex(path_coords, path_CB_inds, path_plddt):
     return metrics_df
 
 
+def calc_mpDockQ(metrics_df):
+    '''Calculats the multiple interface pDockQ
+    '''
+
+    def sigmoid(x, L ,x0, k, b):
+        y = L / (1 + np.exp(-k*(x-x0)))+b
+        return y
+
+
+    av_IF_plDDT = np.average(metrics_df.sum_av_IF_plDDT/metrics_df.n_ints)
+    n_contacts= metrics_df.n_contacts.sum()
+
+    L = 0.783
+    x0= 289.79
+    k= 0.061
+    b= 0.23
+    mpDockQ = sigmoid(av_IF_plDDT*np.log10(n_contacts+0.001), L ,x0, k, b)
+
+    return mpDockQ
+
 #################MAIN####################
 
 #Parse args
@@ -179,4 +198,8 @@ plddt_per_chain = read_plddt(plddtdir, chain_lens, model_path)
 metrics_df = score_complex(chain_coords, chain_CB_inds, plddt_per_chain)
 #Add id
 metrics_df['ID']=model_id
+#Calc mpDockQ
+mpDockQ = calc_mpDockQ(metrics_df)
+metrics_df['mpDockQ']=mpDockQ
 metrics_df.to_csv(outname, index=None)
+print('mpDockQ:',mpDockQ)

@@ -142,7 +142,7 @@ singularity exec $SINGIMG python3 $CODEDIR/mcts.py --network $META \
 #########Step4: SCORING#########
 #Score complex
 MODEL=$COMPLEXDIR/best_complex.pdb
-MODEL_PATH=$COMPLEXDIR/optimal_paths.csv
+MODEL_PATH=$COMPLEXDIR/optimal_path.csv
 DT=8
 OUTNAME=$COMPLEXDIR/$ID'_score.csv'
 singularity exec $SINGIMG python3 $CODEDIR/score_entire_complex.py --model_id $ID --model $MODEL \
