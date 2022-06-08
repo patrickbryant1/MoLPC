@@ -177,3 +177,26 @@ def copy_uints(complex_id, pdbdir, outdir, useqs, interactions, intchain2seq, ge
             #Copy
             shutil.copyfile(pred, outdir+complex_id+'_'+''.join(combo)+'/unrelaxed_model_1_multimer.pdb')
             np.save(outdir+'/plddt/'+complex_id+'_'+''.join(combo)+'.npy',plDDT)
+
+
+
+#Reqwrite AF PDB
+def write_pdb_chain_labels(chains, chain_names, outname):
+    '''Save the CB coordinates for later processing
+    '''
+
+
+    with open(outname,'w') as file:
+        #Write chains
+        ci=0 #chain name index
+        for key in chains:
+            chain = chains[key]
+            chain_name = chain_names[ci]
+            #Write the first pdb file
+            for line in chain:
+                record = parse_atm_record(line)
+                outline = line[:21]+chain_name+line[22:]
+                file.write(outline)
+
+            #Update chain name index
+            ci+=1
