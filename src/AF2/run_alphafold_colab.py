@@ -54,7 +54,8 @@ def predict_structure(
     benchmark: bool,
     random_seed: int,
     model_runners: Optional[Dict[str, model.RunModel]],
-    msas: list):
+    msas: list,
+    chain_break_list: list):
 
   """Predicts structure using AlphaFold for the given sequence."""
   timings = {}
@@ -77,14 +78,14 @@ def predict_structure(
   # Introduce chain breaks for oligomers ########## NEW!
   idx_res = feature_dict['residue_index']
   prev_overlay = 0
-  if FLAGS.chain_break_list:
-    for chain_break in FLAGS.chain_break_list:
+
+    for chain_break in chain_break_list:
       try: chain_break = int(chain_break.strip())
       except: raise TypeError('--chain_break_list argument must be comma separated list'
                               'of lengths of each concatenated chain in the order they '
                               'appear in the input fasta.')
       if chain_break not in list(range(len(idx_res))):
-        if chain_break == FLAGS.chain_break_list[-1]: break
+        if chain_break == chain_break_list[-1]: break
         else: raise ValueError('Specified chain break {} does not appear in sequence length of {}.'\
                                .format(chain_break, len(idx_res)))
       idx_res[chain_break:] += 200
@@ -148,7 +149,7 @@ def predict_structure(
     f.write(json.dumps(timings, indent=4))
 
 
-def main(model_names, num_ensemble, max_recycles, data_dir, fasta_path, fasta_name, msas, output_dir):
+def main(model_names, num_ensemble, max_recycles, data_dir, fasta_path, fasta_name, msas, chain_break_list, output_dir):
   model_runners = {}
   for model_name in model_names:
     model_config = config.model_config(model_name)
@@ -175,4 +176,5 @@ def main(model_names, num_ensemble, max_recycles, data_dir, fasta_path, fasta_na
         model_runners=model_runners,
         benchmark=False,
         random_seed=random_seed,
-        msas=msas)
+        msas=msas,
+        chain_break_list=chain_break_list)
