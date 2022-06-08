@@ -53,8 +53,7 @@ def predict_structure(
     data_pipeline: pipeline.DataPipeline,
     benchmark: bool,
     random_seed: int,
-    model_runners: Optional[Dict[str, model.RunModel]],
-    amber_relaxer: Optional[relax.AmberRelaxation]):
+    model_runners: Optional[Dict[str, model.RunModel]]):
 
   """Predicts structure using AlphaFold for the given sequence."""
   timings = {}
@@ -187,6 +186,5 @@ def main(model_names, num_ensemble, max_recycles, data_dir, fasta_path, fasta_na
         output_dir_base=output_dir,
         data_pipeline=data_pipeline,
         model_runners=model_runners,
-        amber_relaxer=None,
         benchmark=False,
         random_seed=random_seed)
