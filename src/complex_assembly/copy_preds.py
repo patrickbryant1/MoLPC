@@ -1,4 +1,4 @@
-import argparse
+from collections import defaultdict
 import sys
 import os
 import pandas as pd
@@ -6,7 +6,6 @@ import numpy as np
 import itertools
 import shutil
 import glob
-import pdb
 
 
 parser = argparse.ArgumentParser(description = '''Copy the predictions of all unique interactions to reflect all possible (redundant) interactions.''')
