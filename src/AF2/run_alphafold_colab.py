@@ -167,10 +167,8 @@ def main(model_names, num_ensemble, max_recycles, data_dir, fasta_path, fasta_na
   logging.info('Using random seed %d for the data pipeline', random_seed)
 
   data_pipeline = foldonly.FoldDataPipeline()
-  # Predict structure for each of the sequences.
-  for fasta_path, fasta_name in zip(fasta_paths, fasta_names):
-    predict_structure(
-        fasta_path=fasta_path,
+  # Predict structure
+  predict_structure(fasta_path=fasta_path,
         fasta_name=fasta_name,
         output_dir_base=output_dir,
         data_pipeline=data_pipeline,
