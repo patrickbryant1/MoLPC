@@ -53,7 +53,8 @@ def predict_structure(
     data_pipeline: pipeline.DataPipeline,
     benchmark: bool,
     random_seed: int,
-    model_runners: Optional[Dict[str, model.RunModel]]):
+    model_runners: Optional[Dict[str, model.RunModel]],
+    msas: list):
 
   """Predicts structure using AlphaFold for the given sequence."""
   timings = {}
@@ -66,22 +67,10 @@ def predict_structure(
 
   # Get features.
   t_0 = time.time()
-  if FLAGS.full_pipeline:
-    feature_dict = data_pipeline.process(
+  feature_dict = data_pipeline.process(
         input_fasta_path=fasta_path,
-        msa_output_dir=msa_output_dir)
-
-  elif FLAGS.msa_only:
-    data_pipeline.process(
-        input_fasta_path=fasta_path,
-        msa_output_dir=msa_output_dir)
-    sys.exit()
-
-  else:
-    feature_dict = data_pipeline.process(
-        input_fasta_path=fasta_path,
-        input_msas=FLAGS.msas,
-        template_search=FLAGS.template_search,
+        input_msas=msas,
+        template_search=None,
         msa_output_dir=msa_output_dir)
   timings['features'] = time.time() - t_0
 
@@ -159,7 +148,7 @@ def predict_structure(
     f.write(json.dumps(timings, indent=4))
 
 
-def main(model_names, num_ensemble, max_recycles, data_dir, fasta_path, fasta_name, output_dir):
+def main(model_names, num_ensemble, max_recycles, data_dir, fasta_path, fasta_name, msas, output_dir):
   model_runners = {}
   for model_name in model_names:
     model_config = config.model_config(model_name)
@@ -187,4 +176,5 @@ def main(model_names, num_ensemble, max_recycles, data_dir, fasta_path, fasta_na
         data_pipeline=data_pipeline,
         model_runners=model_runners,
         benchmark=False,
-        random_seed=random_seed)
+        random_seed=random_seed,
+        msas=msas)
