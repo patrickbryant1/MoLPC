@@ -79,17 +79,17 @@ def predict_structure(
   idx_res = feature_dict['residue_index']
   prev_overlay = 0
 
-    for chain_break in chain_break_list:
-      try: chain_break = int(chain_break.strip())
-      except: raise TypeError('--chain_break_list argument must be comma separated list'
+  for chain_break in chain_break_list:
+    try: chain_break = int(chain_break.strip())
+    except: raise TypeError('--chain_break_list argument must be comma separated list'
                               'of lengths of each concatenated chain in the order they '
                               'appear in the input fasta.')
-      if chain_break not in list(range(len(idx_res))):
-        if chain_break == chain_break_list[-1]: break
-        else: raise ValueError('Specified chain break {} does not appear in sequence length of {}.'\
+    if chain_break not in list(range(len(idx_res))):
+      if chain_break == chain_break_list[-1]: break
+      else: raise ValueError('Specified chain break {} does not appear in sequence length of {}.'\
                                .format(chain_break, len(idx_res)))
-      idx_res[chain_break:] += 200
-    feature_dict['residue_index'] = idx_res
+    idx_res[chain_break:] += 200
+  feature_dict['residue_index'] = idx_res
 
   # Write out features as a pickled dictionary.
   features_output_path = os.path.join(output_dir, 'features.pkl')
