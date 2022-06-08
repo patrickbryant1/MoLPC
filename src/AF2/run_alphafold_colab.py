@@ -34,7 +34,6 @@ from alphafold.data import templates
 from alphafold.model import data
 from alphafold.model import config
 from alphafold.model import model
-from alphafold.relax import relax
 import numpy as np
 # Internal import (7716).
 
@@ -154,33 +153,6 @@ def predict_structure(
     with open(unrelaxed_pdb_path, 'w') as f:
       f.write(protein.to_pdb(unrelaxed_protein))
 
-    if FLAGS.relax:
-      # Relax the prediction.
-      t_0 = time.time()
-      relaxed_pdb_str, _, _ = amber_relaxer.process(prot=unrelaxed_protein)
-      timings[f'relax_{model_name}'] = time.time() - t_0
-
-      relaxed_pdbs[model_name] = relaxed_pdb_str
-
-      # Save the relaxed PDB.
-      relaxed_output_path = os.path.join(output_dir, f'relaxed_{model_name}.pdb')
-      with open(relaxed_output_path, 'w') as f:
-        f.write(relaxed_pdb_str)
-
-  if FLAGS.relax:
-    # Rank by pLDDT and write out relaxed PDBs in rank order.
-    ranked_order = []
-    for idx, (model_name, _) in enumerate(
-        sorted(plddts.items(), key=lambda x: x[1], reverse=True)):
-      ranked_order.append(model_name)
-      ranked_output_path = os.path.join(output_dir, f'ranked_{idx}.pdb')
-      with open(ranked_output_path, 'w') as f:
-        f.write(relaxed_pdbs[model_name])
-
-    ranking_output_path = os.path.join(output_dir, 'ranking_debug.json')
-    with open(ranking_output_path, 'w') as f:
-      f.write(json.dumps({'plddts': plddts, 'order': ranked_order}, indent=4))
-
   logging.info('Final timings for %s: %s', fasta_name, timings)
 
   timings_output_path = os.path.join(output_dir, 'timings.json')
@@ -194,7 +166,7 @@ def main(model_names, num_ensemble, max_recycles, data_dir, fasta_path, fasta_na
     model_config = config.model_config(model_name)
     model_config.data.eval.num_ensemble = num_ensemble
     model_config.data.common.num_recycle = max_recycles
-    model_config.model.num_recycle = max_recycles                 
+    model_config.model.num_recycle = max_recycles
     model_params = data.get_model_haiku_params(
       model_name=model_name, data_dir=data_dir)
     model_runner = model.RunModel(model_config, model_params)
