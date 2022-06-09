@@ -297,8 +297,8 @@ class MonteCarloTreeSearchNode():
             untried_sources = []
             for chain in path:
                 #Get all edges to the current node
-                cedges = edges[np.argwhere(edges==chain)[:,0]]
-                csources = sources[np.argwhere(edges==chain)[:,0]]
+                cedges = self.edges[np.argwhere(self.edges==chain)[:,0]]
+                csources = self.sources[np.argwhere(self.edges==chain)[:,0]]
                 #Go through all edges and see that the new connection is not in path
                 for i in range(len(cedges)):
                     diff = np.setdiff1d(cedges[i],path)
