@@ -183,7 +183,7 @@ def copy_uints(complex_id, pdbdir, outdir, useqs, interactions, intchain2seq, ge
 
 
 
-#Reqwrite AF PDB
+#Rewrite AF PDB
 def write_pdb_chain_labels(chains, chain_names, outname):
     '''Save the CB coordinates for later processing
     '''
@@ -203,3 +203,81 @@ def write_pdb_chain_labels(chains, chain_names, outname):
 
             #Update chain name index
             ci+=1
+
+
+#Write all pairs
+def read_pdb_for_pairs(pdbfile):
+    '''Read a pdb file per chain
+    '''
+    pdb_chains = {}
+    chain_coords = {}
+    with open(pdbfile) as file:
+        for line in file:
+            record = parse_atm_record(line)
+            if record['chain'] in [*pdb_chains.keys()]:
+                pdb_chains[record['chain']].append(line)
+                #Get CB (CA for GLY)
+                if record['atm_name']=='CB' or (record['atm_name']=='CA' and record['res_name']=='GLY'):
+                    chain_coords[record['chain']].append([record['x'],record['y'],record['z']])
+
+            else:
+                pdb_chains[record['chain']] = [line]
+                chain_coords[record['chain']] = []
+
+
+    return pdb_chains, chain_coords
+
+def write_pdb_for_pairs(content,pdbfile):
+    '''Write dimer to a file
+    '''
+    with open(pdbfile, 'w') as file:
+        for line in content:
+            file.write(line)
+
+def get_all_pairs(pdbdir, pairdir, interactions, get_all, meta_df_name):
+    '''Get and write all possible pairs
+    '''
+    #Get all complex files
+    subcomplexes = glob.glob(pdbdir+'*.pdb')
+    meta_df = {'Source':[], 'Chain1':[], 'Chain2':[]}
+    for sub in subcomplexes:
+        #Get name
+        source_name = sub.split('/')[-1][:-4]
+        #Read
+        pdb_chains, chain_coords = read_pdb_for_pairs(sub)
+
+        #Analyse all pairs
+        sub_chains = [*pdb_chains.keys()]
+        for i in range(len(sub_chains)-1):
+            chi = sub_chains[i]
+            chi_coords = chain_coords[chi]
+            l1 = len(chi_coords)
+            chi_content = pdb_chains[chi]
+            for j in range(i+1,len(sub_chains)):
+                chj = sub_chains[j]
+                chj_coords = chain_coords[chj]
+                chj_content = pdb_chains[chj]
+                #Check if get all or to use known interactions
+                if get_all==False:
+                    sel = interactions[(interactions.Chain1==chi)&(interactions.Chain2==chj)]
+                    if len(sel)<1:
+                        continue
+                #Calculate contacts
+                #Calc 2-norm
+                mat = np.append(chi_coords,chj_coords,axis=0)
+                a_min_b = mat[:,np.newaxis,:] -mat[np.newaxis,:,:]
+                dists = np.sqrt(np.sum(a_min_b.T ** 2, axis=0)).T
+                contact_dists = dists[l1:,:l1]
+                contacts = np.argwhere(contact_dists<=8)
+                #Write joint file if contacts
+                if contacts.shape[0]>0:
+                    write_pdb_for_pairs(np.append(chi_content, chj_content), pairdir+source_name+'_'+chi+'-'+source_name+'_'+chj+'.pdb')
+                    #Save
+                    meta_df['Source'].append(source_name)
+                    meta_df['Chain1'].append(chi)
+                    meta_df['Chain2'].append(chj)
+
+    #Save meta
+    meta_df = pd.DataFrame.from_dict(meta_df)
+    meta_df.to_csv(meta_df_name, index=None)
+    print('Written pairs to', pairdir)
