@@ -518,7 +518,7 @@ def create_path_df(best_path, outdir):
 def assemble(network, pairdir, plddt_dir, useqs, chain_seqs, outdir):
 
     #Get all edges
-    global edges, sources
+    global edges, sources, pairdir, plddtdir, useqs, chain_seqs, outdir
     edges = np.array(network[['Chain1', 'Chain2']])
     sources = np.array(network['Source'])
 
