@@ -520,6 +520,7 @@ def assemble(network, pairdir, plddt_dir, useqs, chain_seqs, outdir):
     #Get all edges
     edges = np.array(network[['Chain1', 'Chain2']])
     sources = np.array(network['Source'])
+    global edges, sources
     #Get all chain lengths
     useqs['Chain_length'] = [len(x) for x in useqs.Sequence]
     useqs = useqs[['SeqID', 'Chain_length']]
