@@ -124,6 +124,7 @@ class MonteCarloTreeSearchNode():
     therefore have to be checked so that the new chain is not in the path.
     '''
     def __init__(self, chain, edge_chain, chain_coords, chain_CA_inds, chain_CB_inds, chain_pdb, chain_plddt,
+                edges, sources, pairdir, plddt_dir, chain_lens, outdir,
                 source=None, complex_scores=[0], parent=None, parent_path=[], total_chains=0):
         self.chain = chain
         self.edge_chain = edge_chain
@@ -132,6 +133,15 @@ class MonteCarloTreeSearchNode():
         self.CB_inds = chain_CB_inds
         self.pdb = chain_pdb
         self.plddt = chain_plddt
+
+        #Add vars
+        self.edges = edges
+        self.sources = sources
+        self.pairdir = pairdir
+        self.plddt_dir = plddt_dir
+        self.chain_lens = chain_lens
+        self.outdir = outdir
+
         self.source = source #where the chain comes from
 
         #These are the scores obtained from all rollouts from the current node
@@ -146,6 +156,7 @@ class MonteCarloTreeSearchNode():
         self._untried_edges, self._untried_sources = self.get_possible_edges()
         self.total_chains=total_chains
 
+
         return
 
     def get_possible_edges(self):
@@ -156,8 +167,8 @@ class MonteCarloTreeSearchNode():
         untried_sources = []
         for chain in self.path:
             #Get all edges to the current node
-            cedges = edges[np.argwhere(edges==chain)[:,0]]
-            csources = sources[np.argwhere(edges==chain)[:,0]]
+            cedges = self.edges[np.argwhere(self.edges==chain)[:,0]]
+            csources = self.sources[np.argwhere(self.edges==chain)[:,0]]
             #Go through all edges and see that the new connection is not in path
             for i in range(len(cedges)):
                 diff = np.setdiff1d(cedges[i],self.path)
@@ -175,19 +186,19 @@ class MonteCarloTreeSearchNode():
         new_chain = np.setdiff1d(new_edge, self.path)[0]
         edge_chain =  np.setdiff1d(new_edge, new_chain)[0]
         #Read the pdb file containing the new edge
-        if os.path.exists(pairdir+new_source+'_'+new_edge[0]+'-'+new_source+'_'+new_edge[1]+'.pdb'):
-            pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(pairdir+new_source+'_'+new_edge[0]+'-'+new_source+'_'+new_edge[1]+'.pdb')
+        if os.path.exists(self.pairdir+new_source+'_'+new_edge[0]+'-'+new_source+'_'+new_edge[1]+'.pdb'):
+            pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(self.pairdir+new_source+'_'+new_edge[0]+'-'+new_source+'_'+new_edge[1]+'.pdb')
         else:
-            pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(pairdir+new_source+'_'+new_edge[1]+'-'+new_source+'_'+new_edge[0]+'.pdb')
+            pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(self.pairdir+new_source+'_'+new_edge[1]+'-'+new_source+'_'+new_edge[0]+'.pdb')
 
         #plDDT - for scoring
-        source_plDDT =  np.load(plddt_dir+new_source+'.npy')
+        source_plDDT =  np.load(self.plddt_dir+new_source+'.npy')
         si = 0
         for p_chain in new_source.split('_')[-1]:
             if p_chain==new_chain:
-                new_chain_plddt=source_plDDT[si:si+chain_lens[new_chain]]
+                new_chain_plddt=source_plDDT[si:si+self.chain_lens[new_chain]]
             else:
-                si += chain_lens[p_chain]
+                si += self.chain_lens[p_chain]
 
         #Align the overlapping chains
         #Get the coords for the other chain in the edge
@@ -235,6 +246,7 @@ class MonteCarloTreeSearchNode():
             #Add to all complex scores
             child_node = MonteCarloTreeSearchNode(new_chain, edge_chain, rotated_coords, np.array(chain_CA_inds[new_chain]),
                     np.array(chain_CB_inds[new_chain]), np.array(pdb_chains[new_chain]), new_chain_plddt,
+                    self.edges, self.sources, self.pairdir, self.plddt_dir, self.chain_lens, self.outdir,
                     source=new_source, complex_scores=[complex_score], parent=self, parent_path=self.path, total_chains=self.total_chains)
 
             self.children.append(child_node)
@@ -312,19 +324,19 @@ class MonteCarloTreeSearchNode():
             edge_chain = np.setdiff1d(new_edge, new_chain)[0]
 
             #Read the pdb file containing the new edge
-            if os.path.exists(pairdir+new_source+'_'+new_edge[0]+'-'+new_source+'_'+new_edge[1]+'.pdb'):
-                pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(pairdir+new_source+'_'+new_edge[0]+'-'+new_source+'_'+new_edge[1]+'.pdb')
+            if os.path.exists(self.pairdir+new_source+'_'+new_edge[0]+'-'+new_source+'_'+new_edge[1]+'.pdb'):
+                pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(self.pairdir+new_source+'_'+new_edge[0]+'-'+new_source+'_'+new_edge[1]+'.pdb')
             else:
-                pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(pairdir+new_source+'_'+new_edge[1]+'-'+new_source+'_'+new_edge[0]+'.pdb')
+                pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(self.pairdir+new_source+'_'+new_edge[1]+'-'+new_source+'_'+new_edge[0]+'.pdb')
 
             #plDDT - for scoring
-            source_plDDT =  np.load(plddt_dir+new_source+'.npy')
+            source_plDDT =  np.load(self.plddt_dir+new_source+'.npy')
             si = 0
             for p_chain in new_source.split('_')[-1]:
                 if p_chain==new_chain:
-                    new_chain_plddt=source_plDDT[si:si+chain_lens[new_chain]]
+                    new_chain_plddt=source_plDDT[si:si+self.chain_lens[new_chain]]
                 else:
-                    si += chain_lens[p_chain]
+                    si += self.chain_lens[p_chain]
 
             #Align the overlapping chains
             #Get the coords for the other chain in the edge
@@ -446,6 +458,7 @@ def find_paths(edges, sources, pairdir, plddt_dir, chain_lens, outdir):
 
     root = MonteCarloTreeSearchNode('A', '', np.array(chain_coords['A']), np.array(chain_CA_inds['A']),
             np.array(chain_CB_inds['A']), np.array(pdb_chains['A']), chain_plddt,
+            edges, sources, pairdir, plddt_dir, chain_lens, outdir,
             source=None, complex_scores=[0], parent=None, parent_path=[], total_chains=num_nodes)
 
     best_path = root.best_path()
@@ -518,7 +531,6 @@ def create_path_df(best_path, outdir):
 def assemble(network, pairdir, plddt_dir, useqs, chain_seqs, outdir):
 
     #Get all edges
-    global edges, sources, pairdir, plddtdir, useqs, chain_seqs, outdir
     edges = np.array(network[['Chain1', 'Chain2']])
     sources = np.array(network['Source'])
 
