@@ -192,7 +192,7 @@ class MonteCarloTreeSearchNode():
             pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(self.pairdir+new_source+'_'+new_edge[1]+'-'+new_source+'_'+new_edge[0]+'.pdb')
 
         #plDDT - for scoring
-        source_plDDT =  np.load(self.plddt_dir+new_source+'.npy')
+        source_plDDT =  np.load(self.plddt_dir+new_source+'.npy', allow_pickle=True)
         si = 0
         for p_chain in new_source.split('_')[-1]:
             if p_chain==new_chain:
