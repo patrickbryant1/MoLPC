@@ -448,7 +448,7 @@ def find_paths(edges, sources, pairdir, plddt_dir, chain_lens, outdir):
     ssr = sources[np.argwhere(edges=='A')[:,0]][0]
     pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(pairdir+ssr+'_'+sps[0]+'-'+ssr+'_'+sps[1]+'.pdb')
     #plDDT
-    source_plDDT =  np.load(plddt_dir+ssr+'.npy')
+    source_plDDT =  np.load(plddt_dir+ssr+'.npy', allow_pickle=True)
     si = 0
     for p_chain in ssr.split('_')[-1]:
         if p_chain=='A':
