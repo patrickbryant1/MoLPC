@@ -90,7 +90,7 @@ def score_complex(path_coords, path_CB_inds, path_plddt):
         for int_i in np.setdiff1d(chain_inds, i):
             int_chain = chains[int_i]
             int_chain_CB_coords = np.array(path_coords[int_chain])[path_CB_inds[int_chain]]
-            int_chain_plddt = path_plddt[int_chain]
+            int_chain_plddt = np.array(path_plddt[int_chain])
             #Calc 2-norm
             mat = np.append(chain_CB_coords,int_chain_CB_coords,axis=0)
             a_min_b = mat[:,np.newaxis,:] -mat[np.newaxis,:,:]
@@ -146,7 +146,6 @@ def main(model_id, model, model_path, useqs, chain_seqs, outname):
     chain_lens = dict(zip(chain_lens.Chain.values, chain_lens.Chain_length.values))
     #Read PDB
     pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds, chain_plddt = read_pdb(model)
-    pdb.set_trace()
     #Score
     metrics_df = score_complex(chain_coords, chain_CB_inds, chain_plddt)
     #Add id
