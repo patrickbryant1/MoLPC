@@ -146,6 +146,7 @@ def main(model_id, model, model_path, useqs, chain_seqs, outname):
     chain_lens = dict(zip(chain_lens.Chain.values, chain_lens.Chain_length.values))
     #Read PDB
     pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds, chain_plddt = read_pdb(model)
+    pdb.set_trace()
     #Score
     metrics_df = score_complex(chain_coords, chain_CB_inds, chain_plddt)
     #Add id
