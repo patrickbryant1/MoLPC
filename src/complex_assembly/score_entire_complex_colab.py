@@ -138,30 +138,20 @@ def calc_mpDockQ(metrics_df):
 
 #################MAIN####################
 
-#Parse args
-args = parser.parse_args()
-#Data
-model_id = args.model_id[0]
-model = args.model[0]
-model_path = pd.read_csv(args.model_path[0])
-plddtdir = args.plddtdir[0]
-useqs = pd.read_csv(args.useqs[0])
-chain_seqs = pd.read_csv(args.chain_seqs[0])[['Chain', 'Useq']]
-outname = args.outname[0]
-
-#Get all chain lengths
-useqs['Chain_length'] = [len(x) for x in useqs.Sequence]
-useqs = useqs[['SeqID', 'Chain_length']]
-chain_lens = pd.merge(chain_seqs, useqs, left_on='Useq', right_on='SeqID', how='left')
-chain_lens = dict(zip(chain_lens.Chain.values, chain_lens.Chain_length.values))
-#Read PDB
-pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds, chain_plddt = read_pdb(model)
-#Score
-metrics_df = score_complex(chain_coords, chain_CB_inds, chain_plddt)
-#Add id
-metrics_df['ID']=model_id
-#Calc mpDockQ
-mpDockQ = calc_mpDockQ(metrics_df)
-metrics_df['mpDockQ']=mpDockQ
-metrics_df.to_csv(outname, index=None)
-print('mpDockQ:',mpDockQ)
+def main(model_id, model, model_path, useqs, chain_seqs, outname):
+    #Get all chain lengths
+    useqs['Chain_length'] = [len(x) for x in useqs.Sequence]
+    useqs = useqs[['SeqID', 'Chain_length']]
+    chain_lens = pd.merge(chain_seqs, useqs, left_on='Useq', right_on='SeqID', how='left')
+    chain_lens = dict(zip(chain_lens.Chain.values, chain_lens.Chain_length.values))
+    #Read PDB
+    pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds, chain_plddt = read_pdb(model)
+    #Score
+    metrics_df = score_complex(chain_coords, chain_CB_inds, chain_plddt)
+    #Add id
+    metrics_df['ID']=model_id
+    #Calc mpDockQ
+    mpDockQ = calc_mpDockQ(metrics_df)
+    metrics_df['mpDockQ']=mpDockQ
+    metrics_df.to_csv(outname, index=None)
+    print('mpDockQ:',mpDockQ)
