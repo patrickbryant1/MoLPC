@@ -32,7 +32,11 @@ for file in $MSADIR/*.fasta
 do
   SUBID=$(awk -F'/' '{print $NF}' <<< "echo $file")
   SUBID=$(echo $SUBID|cut -d '.' -f 1)
-  singularity exec $SINGIMG hhblits -i $file -d $HHBLITSDB -E 0.001 -all -n 2 -oa3m $MSADIR/$SUBID'.a3m'
+  if test -f $MSADIR/$SUBID'.a3m'; then
+    echo $SUBID MSA exists
+  else
+    singularity exec $SINGIMG hhblits -i $file -d $HHBLITSDB -E 0.001 -all -n 2 -oa3m $MSADIR/$SUBID'.a3m'
+  fi
 done
 
 #########Step2: FOLDING PIPELINE#########
