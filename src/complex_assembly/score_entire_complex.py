@@ -11,7 +11,6 @@ parser = argparse.ArgumentParser(description = '''Score complexes.''')
 parser.add_argument('--model_id', nargs=1, type= str, default=sys.stdin, help = 'Model id.')
 parser.add_argument('--model', nargs=1, type= str, default=sys.stdin, help = 'Path to best assembled complex.')
 parser.add_argument('--model_path', nargs=1, type= str, default=sys.stdin, help = 'Path to csv containing the assembly path for the best assembled complex.')
-parser.add_argument('--plddtdir', nargs=1, type= str, default=sys.stdin, help = 'Path to directory with plDDT per chain.')
 parser.add_argument('--useqs', nargs=1, type= str, default=sys.stdin, help = 'CSV with unique seqs')
 parser.add_argument('--chain_seqs', nargs=1, type= str, default=sys.stdin, help = 'CSV with mapping btw useqs and chains')
 parser.add_argument('--outname', nargs=1, type= str, default=sys.stdin, help = 'The name of the output csv with all scores')
@@ -46,6 +45,7 @@ def read_pdb(pdbfile):
     chain_coords = {}
     chain_CA_inds = {}
     chain_CB_inds = {}
+    chain_plddt = {}
 
     with open(pdbfile) as file:
         for line in file:
@@ -56,6 +56,7 @@ def read_pdb(pdbfile):
                 coord_ind+=1
                 if record['atm_name']=='CA':
                     chain_CA_inds[record['chain']].append(coord_ind)
+                    chain_plddt[record['chain']].append(record['B'])
                 if record['atm_name']=='CB' or (record['atm_name']=='CA' and record['res_name']=='GLY'):
                     chain_CB_inds[record['chain']].append(coord_ind)
 
@@ -65,11 +66,12 @@ def read_pdb(pdbfile):
                 chain_coords[record['chain']]= [[record['x'],record['y'],record['z']]]
                 chain_CA_inds[record['chain']]= []
                 chain_CB_inds[record['chain']]= []
+                chain_plddt[record['chain']]= []
                 #Reset coord ind
                 coord_ind = 0
 
 
-    return pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds
+    return pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds, chain_plddt
 
 def read_plddt(plddtdir, chain_lens, model_path):
     '''Get the plDDT for each chain
@@ -116,7 +118,7 @@ def score_complex(path_coords, path_CB_inds, path_plddt):
         chain_CB_inds = path_CB_inds[chain_i]
         l1 = len(chain_CB_inds)
         chain_CB_coords = chain_coords[chain_CB_inds]
-        chain_plddt = path_plddt[chain_i]
+        chain_plddt = np.array(path_plddt[chain_i])
         #Metrics
         n_chain_ints = 0
         chain_av_IF_plDDT = 0
@@ -126,7 +128,7 @@ def score_complex(path_coords, path_CB_inds, path_plddt):
         for int_i in np.setdiff1d(chain_inds, i):
             int_chain = chains[int_i]
             int_chain_CB_coords = np.array(path_coords[int_chain])[path_CB_inds[int_chain]]
-            int_chain_plddt = path_plddt[int_chain]
+            int_chain_plddt = np.array(path_plddt[int_chain])
             #Calc 2-norm
             mat = np.append(chain_CB_coords,int_chain_CB_coords,axis=0)
             a_min_b = mat[:,np.newaxis,:] -mat[np.newaxis,:,:]
@@ -180,7 +182,6 @@ args = parser.parse_args()
 model_id = args.model_id[0]
 model = args.model[0]
 model_path = pd.read_csv(args.model_path[0])
-plddtdir = args.plddtdir[0]
 useqs = pd.read_csv(args.useqs[0])
 chain_seqs = pd.read_csv(args.chain_seqs[0])[['Chain', 'Useq']]
 outname = args.outname[0]
@@ -191,10 +192,9 @@ useqs = useqs[['SeqID', 'Chain_length']]
 chain_lens = pd.merge(chain_seqs, useqs, left_on='Useq', right_on='SeqID', how='left')
 chain_lens = dict(zip(chain_lens.Chain.values, chain_lens.Chain_length.values))
 #Read PDB
-pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds = read_pdb(model)
+pdb_chains, chain_coords, chain_CA_inds, chain_CB_inds, chain_plddt = read_pdb(model)
 #Get plDDT
-plddt_per_chain = read_plddt(plddtdir, chain_lens, model_path)
-metrics_df = score_complex(chain_coords, chain_CB_inds, plddt_per_chain)
+metrics_df = score_complex(chain_coords, chain_CB_inds, chain_plddt)
 #Add id
 metrics_df['ID']=model_id
 #Calc mpDockQ
