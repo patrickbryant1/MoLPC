@@ -12,7 +12,7 @@ HHBLITSDB=$BASE/data/uniclust30_2018_08/uniclust30_2018_08
 #########INPUTS and PATHS##########
 USEQS=$DATADIR/$ID'_useqs.csv'
 CHAINS=$DATADIR/$ID'_chains.csv'
-INTERACTIONS='' #Leave empty if the interactions are not known - here they are not used. See the file $DATADIR/$ID'_ints.csv' to how to supply such a file
+INTERACTIONS='' #Leave empty if the interactions are not known - here they are not used. See the file $DATADIR/$ID'_ints.csv' for how to supply such a file
 SUBSIZE=3 #What order the subcomplexes should be (2 or 3)
 GET_ALL=1 #If to get all interactions (1) or not (0) - when the interactions are known
 #########OUTPUTS#########
@@ -82,7 +82,12 @@ do
   ##HHblits block diagonalized
   BLOCKEDMSA=$MSADIR/$SUBID'_blocked.a3m'
   MSAS="$PAIREDMSA,$BLOCKEDMSA" #Comma separated list of msa paths
-  singularity exec --nv $SINGIMG python3 $BASE/src/AF2/run_alphafold.py \
+  #Check if prediction exists
+  if test -f $STRUCTURE_DIR/$SUBID'/*.pdb'; then
+    echo $SUBID prediction exists
+  else
+
+    singularity exec --nv $SINGIMG python3 $BASE/src/AF2/run_alphafold.py \
                 --fasta_paths=$FASTAFILE \
                 --msas=$MSAS \
                 --chain_break_list=$CB \
@@ -99,6 +104,7 @@ do
                 --obsolete_pdbs_path=$HHBLITSDB \
                 --preset=$PRESET \
                 --max_recycles=$MAX_RECYCLES
+  fi
 
 done
 
@@ -130,6 +136,11 @@ mkdir $PAIRDIR
 singularity exec $SINGIMG python3 $CODEDIR/write_all_pairs.py --pdbdir $PDBDIR --pairdir $PAIRDIR --meta $META \
 --interactions $INTERACTIONS --get_all $GET_ALL
 
+#####Clean up intermediate files#####
+mv $PDBDIR/$ID'_chains.csv' $COMPLEXDIR/$ID'_chains.csv'
+rm -r $PDBDIR/$ID'_*'
+mv $COMPLEXDIR/$ID'_chains.csv' $PDBDIR/$ID'_chains.csv'
+
 #Assemble from pairs
 #Find the best non-overlapping path that connect all nodes using Monte Carlo Tree search
 PLDDTDIR=$PDBDIR/plddt/
@@ -146,6 +157,10 @@ MODEL_PATH=$COMPLEXDIR/optimal_path.csv
 DT=8
 OUTNAME=$COMPLEXDIR/$ID'_score.csv'
 singularity exec $SINGIMG python3 $CODEDIR/score_entire_complex.py --model_id $ID --model $MODEL \
---model_path $MODEL_PATH --plddtdir $PLDDTDIR \
+--model_path $MODEL_PATH
 --useqs $USEQS --chain_seqs $CHAIN_SEQS \
 --outname $OUTNAME
+
+#####Clean up intermediate files#####
+rm -r $PLDDTDIR
+rm -r $PAIRDIR
