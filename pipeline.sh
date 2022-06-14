@@ -87,7 +87,7 @@ do
   BLOCKEDMSA=$MSADIR/$SUBID'_blocked.a3m'
   MSAS="$PAIREDMSA,$BLOCKEDMSA" #Comma separated list of msa paths
   #Check if prediction exists
-  if test -f $STRUCTURE_DIR/$SUBID'/*.pdb'; then
+  if test -f $STRUCTURE_DIR/$SUBID/*_1.pdb; then
     echo $SUBID prediction exists
   else
 
@@ -142,7 +142,7 @@ singularity exec $SINGIMG python3 $CODEDIR/write_all_pairs.py --pdbdir $PDBDIR -
 
 #####Clean up intermediate files#####
 mv $PDBDIR/$ID'_chains.csv' $COMPLEXDIR/$ID'_chains.csv'
-rm -r $PDBDIR/$ID'_*'
+rm -r $PDBDIR/$ID*
 mv $COMPLEXDIR/$ID'_chains.csv' $PDBDIR/$ID'_chains.csv'
 
 #Assemble from pairs
@@ -161,7 +161,7 @@ MODEL_PATH=$COMPLEXDIR/optimal_path.csv
 DT=8
 OUTNAME=$COMPLEXDIR/$ID'_score.csv'
 singularity exec $SINGIMG python3 $CODEDIR/score_entire_complex.py --model_id $ID --model $MODEL \
---model_path $MODEL_PATH
+--model_path $MODEL_PATH \
 --useqs $USEQS --chain_seqs $CHAIN_SEQS \
 --outname $OUTNAME
 
