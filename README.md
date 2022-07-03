@@ -5,7 +5,7 @@ This directory contains a pipeline for predicting very large protein complexes u
 [FoldDock pipeline](https://gitlab.com/ElofssonLab/FoldDock) based on [AlphaFold2](https://www.nature.com/articles/s41586-021-03819-2).
 \
 \
-[Here is the Colab notebook for MoLPC](https://colab.research.google.com/github/patrickbryant1/MoLPC/blob/master/MoLPC.ipynb)
+**[Here is the Colab notebook for MoLPC]**(https://colab.research.google.com/github/patrickbryant1/MoLPC/blob/master/MoLPC.ipynb)
 \
 \
 AlphaFold2 is available under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0) and so is FoldDock, which is a derivative thereof.  \
