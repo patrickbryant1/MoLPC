@@ -4,6 +4,10 @@
 This directory contains a pipeline for predicting very large protein complexes using the
 [FoldDock pipeline](https://gitlab.com/ElofssonLab/FoldDock) based on [AlphaFold2](https://www.nature.com/articles/s41586-021-03819-2).
 \
+\
+[Here is the Colab notebook for MoLPC](https://colab.research.google.com/github/patrickbryant1/MoLPC/blob/master/MoLPC.ipynb)
+\
+\
 AlphaFold2 is available under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0) and so is FoldDock, which is a derivative thereof.  \
 The AlphaFold2 parameters are made available under the terms of the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/legalcode) and have not been modified.
 \
@@ -20,9 +24,6 @@ composed of the supplied sequences and stoichiometry. The pipeline is developed 
 with 10-30 chains, but is also functional for smaller protein complexes. \
 \
 Please see the preprint [Predicting the structure of large protein complexes using AlphaFold and sequential assembly](https://www.biorxiv.org/content/10.1101/2022.03.12.484089v1) for more information.
-
-### [1IWA](https://www.rcsb.org/structure/1IWA) | TM-score=0.93 | Hetero-oligomer with 16 chains
-<img src="./1IWA.gif" width="50%" height="50%"/>
 
 # The following sections contains information of how to install and run MoLPC locally.
 
