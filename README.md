@@ -41,7 +41,7 @@ The only requirement for running MoLPC is therefore singularity, which can be in
 We also provide a script that installs Singularity3 on Linux systems (if your system is not Linux based, RIP).
 To setup this pipeline, clone this github repository:
 ```
-git clone git@github.com:patrickbryant1/MoLPC.git
+git clone https://github.com/patrickbryant1/MoLPC.git
 ```
 \
 To install Singularity3 on a Linux system, do
