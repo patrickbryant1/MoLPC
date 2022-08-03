@@ -23,7 +23,7 @@ this pipeline predicts the structure of an entire complex (without using any str
 composed of the supplied sequences and stoichiometry. The pipeline is developed for protein complexes
 with 10-30 chains, but is also functional for smaller protein complexes. \
 \
-Please see the preprint [Predicting the structure of large protein complexes using AlphaFold and sequential assembly](https://www.biorxiv.org/content/10.1101/2022.03.12.484089v1) for more information.
+Please see the preprint [Predicting the structure of large protein complexes using AlphaFold and Monte Carlo tree search](https://www.biorxiv.org/content/10.1101/2022.03.12.484089v2) for more information.
 
 # The following sections contains information of how to install and run MoLPC locally.
 
