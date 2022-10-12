@@ -25,7 +25,7 @@ import ml_collections
 import numpy as np
 import tensorflow.compat.v1 as tf
 import tree
-
+hk.vmap.require_split_rng = False
 
 def get_confidence_metrics(
     prediction_result: Mapping[str, Any]) -> Mapping[str, Any]:
