@@ -45,7 +45,7 @@ def read_a3m(infile,max_gap_fraction=0.9):
             line = line.rstrip()
             gap_fraction = line.count('-') / float(len(line))
             if gap_fraction <= max_gap_fraction:#Only use the lines with less than 90 % gaps
-                parsed.append([mapping.get(ch, 22) for ch in line if not ch.islower()])
+                parsed.append([mapping.get(ch, 21) for ch in line if not ch.islower()])
             else:
                 if len(species)>1:
                     species = species[:-1] #Remove the previously stored species
