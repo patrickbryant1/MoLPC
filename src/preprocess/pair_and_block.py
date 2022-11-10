@@ -26,6 +26,9 @@ def read_a3m(infile,max_gap_fraction=0.9):
     lc = 0
     with open(infile, 'r') as file:
         for line in file:
+            #This is necessary for the hhblits from Tubingen
+            if line[0]=='#':
+                continue
             line = line.rstrip()
 
             if line.startswith('>'): #species=OrganismIdentifier
@@ -38,6 +41,7 @@ def read_a3m(infile,max_gap_fraction=0.9):
                 else:
                     species.append(0)
                 continue
+
             line = line.rstrip()
             gap_fraction = line.count('-') / float(len(line))
             if gap_fraction <= max_gap_fraction:#Only use the lines with less than 90 % gaps
@@ -92,5 +96,3 @@ def write_a3m(fused, outfile):
             file.write(''.join([backmap[ch] for ch in fused[i]])+'\n')
 
     return None
-
-
