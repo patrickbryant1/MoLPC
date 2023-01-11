@@ -80,6 +80,13 @@ bash pipeline.sh
 \
 The putput will be generated in **./data/test/**
 \
+**NOTE** \
+If you are having singularity issues, please ensure singularity can access your CUDA drivers.
+It may be necessary to bind the path of singularity to the file system you are running from.
+Do this for the AlphaFold prediction step:
+singularity exec --nv $SINGIMG python3 $BASE/src/AF2/run_alphafold.py
+--> singularity exec --nv --bind PATH_TO_DATADIR:PATH_TO_DATADIR $SINGIMG python3 $BASE/src/AF2/run_alphafold.py
+where the PATH_TO_DATADIR is the path to the base file system where you keep this code.
 \
 The pipeline consists of four steps:
 ## 1. MSA generation
