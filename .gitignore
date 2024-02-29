@@ -11,3 +11,4 @@ src/preprocess/__pycache__
 data/test/hhblits
 data/test/AF
 data/test/*.txt
+data/test/assembly/
