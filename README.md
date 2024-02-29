@@ -25,9 +25,9 @@ with 10-30 chains, but is also functional for smaller protein complexes. \
 \
 Please see [Predicting the structure of large protein complexes using AlphaFold and Monte Carlo tree search](https://www.nature.com/articles/s41467-022-33729-4) for more information.
 
-# The following sections contains information of how to install and run MoLPC locally.
+# The following sections contains information of how to install and run MoLPC locally
 
-# Computational requirements
+## Computational requirements
 Before beginning the process of setting up this pipeline on your local system, make sure you have adequate computational resources.
 The main bottleneck here is the structure prediction of trimeric subcomponents with AlphaFold2, which can require >40Gb of GPU RAM
 depending on the number of residues in the subcomponent that is being predicted. Make sure you have available GPUs suitable for this
@@ -35,7 +35,7 @@ type of structure prediction as predicting with CPU will take an unreasonable am
 on your system, readily available.
 
 
-## Clone this repository.
+## Clone this repository
 ```
 git clone https://github.com/patrickbryant1/MoLPC.git
 ```
