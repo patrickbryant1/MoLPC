@@ -1,9 +1,11 @@
 
+#############Activate env#############
+conda activate molpc
 #############PARAMETERS#############
 BASE=$(pwd) #Where all scripts are run from, now the current directory
 ID=1A8R
 DATADIR=$BASE/data/test/
-HHBLITS=$BASE/hhblits #Path to hhblits version 3.1.0
+HHBLITS=$BASE/src/hh-suite/bin/hhblits #Path to hhblits version 3.1.0
 HHBLITSDB=$BASE/data/uniclust30_2018_08/uniclust30_2018_08
 ###Note!
 #This runscript assumes that you have singularity in your path
@@ -24,7 +26,7 @@ HHBLITSDB=$BASE/data/uniclust30_2018_08/uniclust30_2018_08
 MSADIR=$DATADIR/hhblits
 mkdir $MSADIR
 #Write individual fasta files for all unique sequences
-singularity exec $SINGIMG python3 $BASE/src/preprocess/write_hhblits_fasta.py --unique_seq_df $USEQS \
+python3 $BASE/src/preprocess/write_hhblits_fasta.py --unique_seq_df $USEQS \
 --outdir $MSADIR/
 
 #Run HHblits
@@ -35,14 +37,14 @@ do
   if test -f $MSADIR/$SUBID'.a3m'; then
     echo $SUBID MSA exists
   else
-    singularity exec $SINGIMG hhblits -i $file -d $HHBLITSDB -E 0.001 -all -n 2 -oa3m $MSADIR/$SUBID'.a3m'
+    $HHBLITS -i $file -d $HHBLITSDB -E 0.001 -all -n 2 -oa3m $MSADIR/$SUBID'.a3m'
   fi
 done
 
 #########Step2: FOLDING PIPELINE#########
 wait
 #Write the Paired and Block Diagonalized MSAs to predict sub-components
-singularity exec $SINGIMG python3 $BASE/src/preprocess/prepare_folddock_run.py --msadir $MSADIR/ \
+python3 $BASE/src/preprocess/prepare_folddock_run.py --msadir $MSADIR/ \
 --complex_id $ID \
 --outdir $MSADIR/ \
 --useqs $USEQS \
@@ -91,7 +93,7 @@ do
     echo $SUBID prediction exists
   else
 
-    singularity exec --nv $SINGIMG python3 $BASE/src/AF2/run_alphafold.py \
+    python3 $BASE/src/AF2/run_alphafold.py \
                 --fasta_paths=$FASTAFILE \
                 --msas=$MSAS \
                 --chain_break_list=$CB \
@@ -119,17 +121,17 @@ CODEDIR=$BASE/src/complex_assembly
 #Make complex directory
 mkdir -p $COMPLEXDIR
 #Rewrite the FoldDock preds to have separate chains according to the fasta file seqlens
-singularity exec $SINGIMG python3 $CODEDIR/rewrite_fd.py --pdbdir $STRUCTURE_DIR --pdb_id $ID
+python3 $CODEDIR/rewrite_fd.py --pdbdir $STRUCTURE_DIR --pdb_id $ID
 
 #Copy all predicted unique chain interactions to reflect all possible interactions
 SUB_PDBDIR=$STRUCTURE_DIR/
 OUTDIR=$DATADIR/assembly/
-singularity exec $SINGIMG python3 $CODEDIR/copy_preds.py --complex_id $ID --pdbdir $SUB_PDBDIR --outdir $OUTDIR \
+python3 $CODEDIR/copy_preds.py --complex_id $ID --pdbdir $SUB_PDBDIR --outdir $OUTDIR \
 --useqs $USEQS --subsize $SUBSIZE --interactions $INTERACTIONS --intchain2seq $CHAINS --get_all $GET_ALL
 
 #Rewrite AF predicted complexes to have proper numbering and chain labels
 PDBDIR=$OUTDIR
-singularity exec $SINGIMG python3 $CODEDIR/rewrite_af_pdb.py --pdbdir $PDBDIR --pdb_id $ID --outdir $OUTDIR
+python3 $CODEDIR/rewrite_af_pdb.py --pdbdir $PDBDIR --pdb_id $ID --outdir $OUTDIR
 
 #Write all pairs
 PAIRDIR=$PDBDIR/pairs/
@@ -137,7 +139,7 @@ META=$PDBDIR/meta.csv #where to write all interactions
 #It is necessary that the first unique chain is named A-..N for and the second N-... and so on
 mkdir $PAIRDIR
 #Glob for all files with each chain in order (A,B,C,D) A-->B,C,D; B--> C,D; C-->D
-singularity exec $SINGIMG python3 $CODEDIR/write_all_pairs.py --pdbdir $PDBDIR --pairdir $PAIRDIR --meta $META \
+python3 $CODEDIR/write_all_pairs.py --pdbdir $PDBDIR --pairdir $PAIRDIR --meta $META \
 --interactions $INTERACTIONS --get_all $GET_ALL
 
 #####Clean up intermediate files#####
@@ -149,7 +151,7 @@ mv $COMPLEXDIR/$ID'_chains.csv' $PDBDIR/$ID'_chains.csv'
 #Find the best non-overlapping path that connect all nodes using Monte Carlo Tree search
 PLDDTDIR=$PDBDIR/plddt/
 CHAIN_SEQS=$PDBDIR/$ID'_chains.csv' #Updated chain seqs
-singularity exec $SINGIMG python3 $CODEDIR/mcts.py --network $META \
+python3 $CODEDIR/mcts.py --network $META \
 --pairdir $PAIRDIR --plddt_dir $PLDDTDIR \
 --useqs $USEQS --chain_seqs $CHAIN_SEQS \
 --outdir $COMPLEXDIR
@@ -160,7 +162,7 @@ MODEL=$COMPLEXDIR/best_complex.pdb
 MODEL_PATH=$COMPLEXDIR/optimal_path.csv
 DT=8
 OUTNAME=$COMPLEXDIR/$ID'_score.csv'
-singularity exec $SINGIMG python3 $CODEDIR/score_entire_complex.py --model_id $ID --model $MODEL \
+python3 $CODEDIR/score_entire_complex.py --model_id $ID --model $MODEL \
 --model_path $MODEL_PATH \
 --useqs $USEQS --chain_seqs $CHAIN_SEQS \
 --outname $OUTNAME

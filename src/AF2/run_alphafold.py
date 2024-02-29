@@ -35,12 +35,12 @@ from alphafold.data import templates
 from alphafold.model import data
 from alphafold.model import config
 from alphafold.model import model
-from alphafold.relax import relax
+
 import numpy as np
 # Internal import (7716).
 
 ##### essential flags #####
-flags.DEFINE_list('fasta_paths', None, 
+flags.DEFINE_list('fasta_paths', None,
     'Paths to FASTA files, each containing '
     'one sequence. Paths should be separated by commas. '
     'All FASTA paths must have a unique basename as the '
@@ -131,21 +131,21 @@ flags.DEFINE_enum('preset', 'full_dbs', ['full_dbs', 'reduced_dbs', 'casp14'],  
     'Choose preset model configuration - no ensembling (full_dbs)'
     'and (reduced_dbs) or 8 model ensemblings (casp14).')
 
-flags.DEFINE_boolean('relax', False, 
+flags.DEFINE_boolean('relax', False,
     'Relax with Amber the resulting structures')                                    ##### NEW!
 
-flags.DEFINE_integer('max_recycles', 3, 
+flags.DEFINE_integer('max_recycles', 3,
     'Number of recyles through the model')                                          ##### NEW!
 
 flags.DEFINE_integer('tolerance', 0,
     'Minimal CA RMS between recycles to keep recycling')                            ##### NEW!
 
-flags.DEFINE_boolean('benchmark', False, 
+flags.DEFINE_boolean('benchmark', False,
     'Run multiple JAX model evaluations to obtain a timing that '
     'excludes the compilation time, which should be more indicative '
     'of the time required for inferencing many proteins.')
 
-flags.DEFINE_integer('random_seed', None, 
+flags.DEFINE_integer('random_seed', None,
     'The random seed for the data pipeline. By default, this is randomly generated. '
     'Note that even if this is set, Alphafold may still not be deterministic, '
     'because processes like GPU inference are nondeterministic.')
@@ -173,8 +173,7 @@ def predict_structure(
     data_pipeline: pipeline.DataPipeline,
     benchmark: bool,
     random_seed: int,
-    model_runners: Optional[Dict[str, model.RunModel]],
-    amber_relaxer: Optional[relax.AmberRelaxation]):
+    model_runners: Optional[Dict[str, model.RunModel]]):
 
   """Predicts structure using AlphaFold for the given sequence."""
   timings = {}
@@ -313,7 +312,7 @@ def main(argv):
 
   ##### check over run modes flags ######## NEW!
   if not FLAGS.full_pipeline and not FLAGS.fold_only\
-  and not FLAGS.msa_only: 
+  and not FLAGS.msa_only:
     raise app.UsageError('ERROR: Must specify a run mode: --full pipeline '
                          'or --fold_only or --msa-only.')
 
@@ -401,8 +400,8 @@ def main(argv):
 
     data_pipeline = foldonly.FoldDataPipeline(
             template_featurizer=template_featurizer)
- 
-  else: 
+
+  else:
     data_pipeline = foldonly.FoldDataPipeline()
   if FLAGS.full_pipeline or FLAGS.fold_only:
     model_runners = {}
@@ -421,14 +420,6 @@ def main(argv):
                  list(model_runners.keys()))
   else: model_runners = None
 
-  if FLAGS.relax:
-    amber_relaxer = relax.AmberRelaxation(
-        max_iterations=RELAX_MAX_ITERATIONS,
-        tolerance=RELAX_ENERGY_TOLERANCE,
-        stiffness=RELAX_STIFFNESS,
-        exclude_residues=RELAX_EXCLUDE_RESIDUES,
-        max_outer_iterations=RELAX_MAX_OUTER_ITERATIONS)
-  else: amber_relaxer = None
 
   random_seed = FLAGS.random_seed
   if random_seed is None:
@@ -443,7 +434,6 @@ def main(argv):
         output_dir_base=FLAGS.output_dir,
         data_pipeline=data_pipeline,
         model_runners=model_runners,
-        amber_relaxer=amber_relaxer,
         benchmark=FLAGS.benchmark,
         random_seed=random_seed)
 

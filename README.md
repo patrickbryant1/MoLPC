@@ -23,7 +23,7 @@ this pipeline predicts the structure of an entire complex (without using any str
 composed of the supplied sequences and stoichiometry. The pipeline is developed for protein complexes
 with 10-30 chains, but is also functional for smaller protein complexes. \
 \
-Please see the preprint [Predicting the structure of large protein complexes using AlphaFold and Monte Carlo tree search](https://www.biorxiv.org/content/10.1101/2022.03.12.484089v2) for more information.
+Please see [Predicting the structure of large protein complexes using AlphaFold and Monte Carlo tree search](https://www.nature.com/articles/s41467-022-33729-4) for more information.
 
 # The following sections contains information of how to install and run MoLPC locally.
 
@@ -34,27 +34,18 @@ depending on the number of residues in the subcomponent that is being predicted.
 type of structure prediction as predicting with CPU will take an unreasonable amount of time. This pipeline assumes you have NVIDIA GPUs
 on your system, readily available.
 
-# Setup
-All needed packages are supplied through a Singularity image.
-The only requirement for running MoLPC is therefore singularity, which can be installed by following: https://sylabs.io/guides/3.0/user-guide/quick_start.html
-\
-We also provide a script that installs Singularity3 on Linux systems (if your system is not Linux based, RIP).
-To setup this pipeline, clone this github repository:
+
+## Clone this repository.
 ```
 git clone https://github.com/patrickbryant1/MoLPC.git
 ```
-\
-To install Singularity3 on a Linux system, do
-```
-bash ./src/install_singularity_ubuntu.sh
-```
-Then do
+
+## Install all packages and databases
 ```
 bash setup.sh
 ```
-This script fetches the [AlphaFold2 parameters](https://storage.googleapis.com/alphafold/alphafold_params_2021-07-14.tar), installs the singularity image and downloads [uniclust30_2018_08](http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30_2018_08_hhsuite.tar.gz)
 
-# Procedure
+## Predict
 The following procedure outlines the steps taken to generate a protein complex prediction. \
 \
 This entire pipeline is present in the script pipeline.sh, which takes three
