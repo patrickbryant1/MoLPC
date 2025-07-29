@@ -105,6 +105,11 @@ After assembly, we score the interfaces of the complete complex using the averag
 \
 where x = average interface plDDT⋅log(number of interface contacts) averaged over all interfaces in the complex and L= 0.783, x0= 289.79, k= 0.061 and b= 0.23.
 
+# Citation
+If you use MolPC in your research, please cite
+Bryant, P., Pozzati, G., Zhu, W. et al. Predicting the structure of large protein complexes using AlphaFold and Monte Carlo tree search. Nat Commun (2022). [link](https://www.nature.com/articles/s41467-022-33729-4)
+
+
 --------------------------------------------------------------------------------------------
 Copyright 2022 Patrick Bryant \
 Licensed under the Apache License, Version 2.0. \
