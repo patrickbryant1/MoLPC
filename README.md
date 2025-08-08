@@ -1,7 +1,12 @@
 # MoLPC
 **M**odelling **o**f **L**arge **P**rotein **C**omplexes version 1.0
 
-This directory contains a pipeline for predicting very large protein complexes using the
+MoLPC - large protein complex assembly: <https://github.com/patrickbryant1/MoLPC>
+<p align="center">
+<img src="./data/proteasome.gif" width="45%"/>
+</p>
+
+This directory contains a pipeline for predicting large protein complexes using the
 [FoldDock pipeline](https://gitlab.com/ElofssonLab/FoldDock) based on [AlphaFold2](https://www.nature.com/articles/s41586-021-03819-2).
 \
 \
